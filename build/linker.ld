@@ -1,5 +1,5 @@
 ENTRY(_start)
- 
+
 SECTIONS {
     . = 0x80000000;
 
@@ -7,11 +7,6 @@ SECTIONS {
         *(.text)
     }
 
-    .stack : ALIGN(4K) {
-        . += 0x1000;
-        PROVIDE( _sp = . );
-    }
- 
     .rodata : ALIGN(4K) {
         *(.rodata*)
     }
@@ -23,5 +18,23 @@ SECTIONS {
     .bss : ALIGN(4K) {
         *(COMMON)
         *(.bss)
+    }
+
+    .stack  (NOLOAD): ALIGN(16) {
+        . += 0x100000;
+        . = ALIGN(16);
+        PROVIDE( _sp = . );
+        . += 0x100000;
+        . = ALIGN(16);
+        PROVIDE( _h2_sp = . );
+        . += 0x100000;
+        . = ALIGN(16);
+        PROVIDE( _h3_sp = . );
+        . += 0x100000;
+        . = ALIGN(16);
+        PROVIDE( _h4_sp = . );
+        . += 0x100000;
+        . = ALIGN(16);
+        PROVIDE( _isp = . );
     }
 }
