@@ -25,6 +25,7 @@ pub fn build(b: *Builder) void {
     });
 
     kernel.setLinkerScriptPath(.{ .path = "build/linker.ld" });
+    kernel.addAssemblyFile(.{ .path = "src/interrupts/handler.S" });
     var kernel_artifact = b.addInstallArtifact(kernel, .{});
     b.getInstallStep().dependOn(&kernel_artifact.step);
 

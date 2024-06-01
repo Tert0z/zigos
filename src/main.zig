@@ -20,6 +20,8 @@ pub fn kmain() noreturn {
     unreachable;
 }
 
+extern const interrupt_handler_asm: u32;
+
 pub fn run() !void {
     console.write("Hello, world!\n");
 
@@ -27,10 +29,9 @@ pub fn run() !void {
     const print = try std.fmt.bufPrint(&buf, "timer: {x}\n\r", .{timer});
     console.write(print);
 
-    var ptr = &interrupt_handler_raw;
     asm volatile (
         \\ csrw stvec, %[handler]
-        : [handler] "=r" (ptr),
+        : [handler] "=r" (interrupt_handler_asm),
     );
 
     var sstatus = interrupt.sstatus.read();
@@ -47,9 +48,9 @@ pub fn run() !void {
     timer = time.read();
     //switch_to_user_mode();
     try sbi.sbi_set_timer(timer + 900000);
-    try sbi.HSM.start_hart(2, @intFromPtr(&hart_entry));
-    try sbi.HSM.start_hart(3, @intFromPtr(&hart_entry2));
-    try sbi.HSM.start_hart(4, @intFromPtr(&hart_entry3));
+    try sbi.HSM.start_hart(2, interrupt_handler_asm);
+    //try sbi.HSM.start_hart(3, @intFromPtr(&hart_entry2));
+    //try sbi.HSM.start_hart(4, @intFromPtr(&hart_entry3));
 
     var counter: u32 = 0;
     while (true) {
@@ -76,35 +77,7 @@ fn switch_to_user_mode() void {
     );
 }
 
-fn hart_entry() callconv(.Naked) noreturn {
-    asm volatile (
-        \\ la sp, _h2_sp
-        \\ call %[kmain]
-        \\ wfi
-        :
-        : [kmain] "i" (&other_hart),
-    );
-}
-fn hart_entry2() callconv(.Naked) noreturn {
-    asm volatile (
-        \\ la sp, _h3_sp
-        \\ call %[kmain]
-        \\ wfi
-        :
-        : [kmain] "i" (&other_hart),
-    );
-}
-fn hart_entry3() callconv(.Naked) noreturn {
-    asm volatile (
-        \\ la sp, _h4_sp
-        \\ call %[kmain]
-        \\ wfi
-        :
-        : [kmain] "i" (&other_hart),
-    );
-}
-
-fn other_hart() void {
+export fn other_hart() void {
     var hartid: u8 = 0;
     asm volatile (
         \\ 

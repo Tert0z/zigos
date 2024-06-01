@@ -21,7 +21,7 @@ SECTIONS {
     }
 
     .stack  (NOLOAD): ALIGN(16) {
-        . += 0x100000;
+        . += 0x100001;
         . = ALIGN(16);
         PROVIDE( _sp = . );
         . += 0x100000;
