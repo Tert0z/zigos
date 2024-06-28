@@ -2,7 +2,7 @@ const main = @import("main.zig");
 
 export fn _start() callconv(.Naked) noreturn {
     asm volatile (
-        \\ la sp, _sp
+        \\ la sp, _h1_sp
         \\ call %[kmain]
         \\ wfi
         :

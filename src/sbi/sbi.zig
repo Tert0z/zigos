@@ -30,22 +30,23 @@ pub const SbiExtId = enum(u32) {
 };
 
 pub fn sbi_set_timer(stime: u64) SbiError!void {
-    return sbi_call(SbiExtId.Time, 0, stime, 0);
+    return sbi_call(SbiExtId.Time, 0, stime, 0, 0);
 }
 
 pub const HSM = struct {
-    pub fn start_hart(hartid: u32, start_addr: u64) SbiError!void {
-        return sbi_call(SbiExtId.Hsm, 0, hartid, start_addr);
+    pub fn start_hart(hartid: u32, start_addr: u64, stack: u64) SbiError!void {
+        return sbi_call(SbiExtId.Hsm, 0, hartid, start_addr, stack);
     }
 };
 
-fn sbi_call(eid: SbiExtId, fid: u32, arg: u64, arg2: u64) SbiError!void {
+fn sbi_call(eid: SbiExtId, fid: u32, arg: u64, arg2: u64, arg3: u64) SbiError!void {
     var err: u32 = 0;
     asm volatile (
         \\ ecall
         : [_] "={a0}" (err),
         : [_] "{a0}" (arg),
           [_] "{a1}" (arg2),
+          [_] "{a2}" (arg3),
           [_] "{a7}" (eid),
           [_] "{a6}" (fid),
     );

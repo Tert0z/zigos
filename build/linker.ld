@@ -2,6 +2,7 @@ ENTRY(_start)
 
 SECTIONS {
     . = 0x80000000;
+    . += 1M;
 
     .text : ALIGN(4K) {
         *(.text)
@@ -23,7 +24,7 @@ SECTIONS {
     .stack  (NOLOAD): ALIGN(16) {
         . += 0x100001;
         . = ALIGN(16);
-        PROVIDE( _sp = . );
+        PROVIDE( _h1_sp = . );
         . += 0x100000;
         . = ALIGN(16);
         PROVIDE( _h2_sp = . );
