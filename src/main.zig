@@ -9,37 +9,15 @@ const time = @import("timer/timer.zig");
 var buf: [1000]u8 = undefined;
 var console: *uart.Console = undefined;
 
-//#define PLAT_CONSOLE_BAUDRATE 115200
-//#define PLAT_UART_CLK_IN_HZ 25000000
-//	int baudrate = baud_rate;
-//int uart_clock = uart_clk;
-
-//int divisor = uart_clock / (16 * baudrate);
-
-//uart->lcr = uart->lcr | UART_LCR_DLAB | UART_LCR_8N1;
-//asm (""::: "memory");
-//uart->dll = divisor & 0xff;
-//asm (""::: "memory");
-//uart->dlm = (divisor >> 8) & 0xff;
-//asm (""::: "memory");
-//uart->lcr = uart->lcr & (~UART_LCR_DLAB);
-//asm (""::: "memory");
-//uart->ier = 0;
-//asm (""::: "memory");
-//uart->mcr = UART_MCRVAL;
-//asm (""::: "memory");
-//uart->fcr = UART_FCR_DEFVAL;
-//asm (""::: "memory");
-//uart->lcr = 3;
 
 pub fn kmain() noreturn {
-    const setup: *volatile u32 = @ptrFromInt(0x0300_1084);
-    var setting = setup.*;
-    const mask: u32 = 0x7;
-    setting &= ~mask;
-    setting |= 0x01;
-    setup.* = setting;
-    var c = uart.Console.init(0x041C_0000);
+    //const setup: *volatile u32 = @ptrFromInt(0x0300_1084);
+    //var setting = setup.*;
+    //const mask: u32 = 0x7;
+    //setting &= ~mask;
+    //setting |= 0x01;
+    //setup.* = setting;
+    var c = uart.Console.init(0x0414_0000);
     console = &c;
 
     run() catch |err| {
