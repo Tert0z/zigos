@@ -21,8 +21,12 @@ extern const interrupt_handler_asm: u32;
 const CSRRegister = packed struct {};
 
 pub fn run() !void {
-    console.write("Hello, world!\n");
+    console.write("Hello, world!\n\r");
+    var val: u64 = undefined;
     asm volatile (
-        \\ mrs x3, SCTLR_EL1
+        \\ mrs %[val], SCTLR_EL3
+        : [val] "=r" (val),
     );
+    const print = std.fmt.bufPrint(&buf, "SCTLR_EL1: {x}\n", .{val}) catch unreachable;
+    console.write(print);
 }
