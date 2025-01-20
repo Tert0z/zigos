@@ -1,0 +1,29 @@
+#!/sbin/expect -f
+
+set force_conservative 1  ;
+if {$force_conservative} {
+	set send_slow {1 .1}
+	proc send {ignore arg} {
+		sleep .1
+		exp_send -s -- $arg
+	}
+}
+
+set timeout -1
+spawn bash ./petalinux-v2020.1-final-installer.run -d /home/peta/petalinux
+match_max 100000
+expect "Press Enter to display the license agreements"
+send -- "\r"
+expect -exact "Petalinux_EULA.txt" 
+send -- "q"
+expect -exact "Do you accept Xilinx End User License Agreement? \[y/N\] > "
+send -- "y\r"
+expect -exact "WebTalk_notice.txt"
+send -- "q"
+expect -exact "Do you accept Webtalk Terms and Conditions? \[y/N\] > "
+send -- "y\r"
+expect -exact "Third_Party_Software_End_User_License_Agreement.txt"
+send -- "q"
+expect -exact "Do you accept Third Party End User License Agreement? \[y/N\] > "
+send -- "y\r"
+expect eof
