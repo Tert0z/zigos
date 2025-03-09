@@ -8,7 +8,7 @@ const asm_helpers = @import("asm_helpers");
 const sync = @import("sync/spin_lock.zig");
 
 var buf: [1000]u8 = undefined;
-var console: uart.Console = uart.Console.init(0xFF00_0000);
+var console: uart.Console = uart.Console.init(0x09000000);
 var testValue: u64 = 0;
 
 pub fn kmain() noreturn {
@@ -30,7 +30,7 @@ export fn secondary_cpu_init() void {
     const mpidr_el1 = smp.MPIDR.init();
 
     //asm_helpers.write_system_reg("ttbr0_el1", 0x7fee0000);
-    asm_helpers.write_system_reg("VBAR_EL1", @intFromPtr(&vector_table_jumps));
+    //asm_helpers.write_system_reg("VBAR_EL1", @intFromPtr(&vector_table_jumps));
 
     //var sctlr = registers_sctlr.SCTLR.init();
     //sctlr.data_cache_enable = 1;
@@ -40,7 +40,7 @@ export fn secondary_cpu_init() void {
     //sctlr.stack_pointer_alignment_check = 0;
     //sctlr.write();
     var buf2: [100]u8 = undefined;
-    var c_local: uart.Console = uart.Console.init(0xFF00_0000);
+    var c_local: uart.Console = uart.Console.init(0x3089_0000);
 
     //lock.lock();
     const p2 = std.fmt.bufPrint(&buf2, "Secondary SCTLR: {}\n\r", .{mpidr_el1}) catch unreachable;

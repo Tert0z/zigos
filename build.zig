@@ -22,11 +22,14 @@ pub fn buildKernel(b: *Builder, optimize: std.builtin.OptimizeMode) void {
     const target = b.resolveTargetQuery(targetQuery);
 
     const kernel = b.addExecutable(.{
-        .name = "kernel",
+        .name = "kernel.elf",
         .root_source_file = b.path("src/bootstrap.zig"),
         .target = target,
         .optimize = optimize,
-        .code_model = .small,
+        .code_model = .large,
+        .strip = false,
+        .unwind_tables = true,
+        .omit_frame_pointer = false,
     });
 
     kernel.setLinkerScriptPath(b.path("build/kernel.ld"));
@@ -41,45 +44,4 @@ pub fn buildKernel(b: *Builder, optimize: std.builtin.OptimizeMode) void {
     kernel.root_module.addImport("asm_helpers", asm_module);
 
     b.getInstallStep().dependOn(&kernel.step);
-
-    const raw_image = b.addSystemCommand(&[_][]const u8{"aarch64-linux-gnu-objcopy"});
-    raw_image.addArtifactArg(kernel);
-    raw_image.addArgs(&[_][]const u8{ "-O", "binary", "zig-out/bin/kernel.img" });
-    raw_image.step.dependOn(&kernel.step);
-    b.getInstallStep().dependOn(&raw_image.step);
-}
-
-pub fn buildLogger(b: *Builder, optimize: std.builtin.OptimizeMode) void {
-    const targetQuery = Target.Query{
-        .cpu_arch = Target.Cpu.Arch.arm,
-        .os_tag = Target.Os.Tag.freestanding,
-        .abi = Target.Abi.none,
-        .cpu_model = .{ .explicit = &Target.arm.cpu.cortex_r5 },
-        //.cpu_features_add = Target.aarch64.featureSet(&[_]Target.aarch64.Feature{.strict_align}),
-    };
-
-    const target = b.resolveTargetQuery(targetQuery);
-
-    const logger = b.addExecutable(.{
-        .name = "logger",
-        .root_source_file = b.path("src/logger.zig"),
-        .target = target,
-        .optimize = optimize,
-        .code_model = .large,
-    });
-
-    logger.setLinkerScriptPath(b.path("build/logger.ld"));
-    b.installArtifact(logger);
-
-    const asm_module = b.addModule("asm_helpers", .{
-        .root_source_file = b.path("src/asm/asm.zig"),
-    });
-
-    logger.root_module.addImport("asm_helpers", asm_module);
-
-    const raw_image = b.addSystemCommand(&[_][]const u8{"aarch64-linux-gnu-objcopy"});
-    raw_image.addArtifactArg(logger);
-    raw_image.addArgs(&[_][]const u8{ "-O", "binary", "zig-out/bin/logger.img" });
-    raw_image.step.dependOn(&logger.step);
-    b.getInstallStep().dependOn(&raw_image.step);
 }
